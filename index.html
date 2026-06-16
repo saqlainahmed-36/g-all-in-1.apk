@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>G-ALL-IN-1 — One Shell. Every Google App.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#05060a;
+    --panel:#0c0f18;
+    --white-neon:#f5f9ff;
+    --silver:#9aa6ba;
+    --ice:#d6f3ff;
+    --line:rgba(255,255,255,.14);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{background:var(--void); color:var(--white-neon); font-family:'Rajdhani',sans-serif; overflow-x:hidden;}
+  body{position:relative; min-height:100vh;}
+
+  canvas#particles{position:fixed; inset:0; z-index:0; pointer-events:none;}
+
+  .scanlines{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
+    background:repeating-linear-gradient(to bottom, rgba(255,255,255,.025) 0px, rgba(255,255,255,.025) 1px, transparent 1px, transparent 3px);
+    mix-blend-mode:overlay;
+  }
+  .vignette{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
+    background:radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.75) 100%);
+  }
+
+  /* ---------- boot overlay ---------- */
+  #boot-overlay{
+    position:fixed; inset:0; z-index:50; background:#05060a;
+    display:flex; align-items:center; justify-content:center;
+    transition:opacity .6s ease;
+  }
+  #boot-overlay.boot-hide{opacity:0; pointer-events:none;}
+  #boot-log{
+    font-family:'Share Tech Mono', monospace; font-size:.8rem; color:var(--ice);
+    line-height:1.7; letter-spacing:.5px; min-width:280px;
+  }
+  #boot-log div{opacity:0; animation:fadeIn .25s forwards;}
+  @keyframes fadeIn{to{opacity:1;}}
+
+  main{position:relative; z-index:2; max-width:1100px; margin:0 auto; padding:0 24px 80px;}
+
+  /* ---------- hero ---------- */
+  .hero{text-align:center; padding-top:8vh;}
+  .hud-tag{
+    font-family:'Share Tech Mono', monospace; font-size:.7rem; letter-spacing:4px;
+    color:var(--silver); opacity:0; animation:riseIn .8s ease forwards; animation-delay:.1s;
+  }
+  .title{
+    font-family:'Orbitron', sans-serif; font-weight:900;
+    font-size:clamp(2.6rem, 9vw, 5.6rem); letter-spacing:5px; margin:14px 0 10px;
+    color:var(--white-neon);
+    text-shadow:0 0 8px rgba(255,255,255,.55), 0 0 26px rgba(255,255,255,.35), 0 0 60px rgba(255,255,255,.2);
+    opacity:0; animation:riseIn .9s ease forwards; animation-delay:.25s;
+  }
+  .tagline{
+    font-size:1.05rem; font-weight:500; color:var(--silver); letter-spacing:.5px;
+    opacity:0; animation:riseIn .9s ease forwards; animation-delay:.4s;
+  }
+  @keyframes riseIn{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
+
+  /* ---------- orbit core ---------- */
+  .core-wrap{
+    position:relative; width:320px; height:320px; margin:64px auto 48px;
+    opacity:0; animation:riseIn 1s ease forwards; animation-delay:.55s;
+  }
+  .core-wrap::before{
+    content:''; position:absolute; inset:-1px; border-radius:50%;
+    border:1px solid rgba(255,255,255,.08);
+  }
+  .core{
+    position:absolute; top:50%; left:50%; width:96px; height:96px; margin:-48px;
+    border-radius:50%; background:radial-gradient(circle at 35% 30%, rgba(255,255,255,.18), rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.55);
+    box-shadow:0 0 24px rgba(255,255,255,.4), inset 0 0 18px rgba(255,255,255,.15);
+    display:flex; align-items:center; justify-content:center;
+    animation:pulseCore 3.4s ease-in-out infinite;
+  }
+  @keyframes pulseCore{
+    0%,100%{box-shadow:0 0 24px rgba(255,255,255,.35), inset 0 0 18px rgba(255,255,255,.12);}
+    50%{box-shadow:0 0 38px rgba(255,255,255,.6), inset 0 0 22px rgba(255,255,255,.2);}
+  }
+  .core span{font-family:'Orbitron',sans-serif; font-weight:900; font-size:1.8rem; color:#fff;}
+
+  .ring{position:absolute; inset:0; animation:spin 42s linear infinite;}
+  .node{
+    position:absolute; top:50%; left:50%; width:44px; height:44px; margin:-22px;
+    border-radius:12px; background:rgba(8,10,16,.7); border:1px solid rgba(255,255,255,.4);
+    box-shadow:0 0 14px rgba(255,255,255,.25);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .node svg{width:20px; height:20px; stroke:#f5f9ff; fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;}
+  .icon-spin{animation:spin-rev 42s linear infinite; display:flex;}
+  @keyframes spin{from{transform:rotate(0deg);} to{transform:rotate(360deg);}}
+  @keyframes spin-rev{from{transform:rotate(0deg);} to{transform:rotate(-360deg);}}
+
+  .n1{transform:rotate(0deg) translate(140px) rotate(0deg);}
+  .n2{transform:rotate(60deg) translate(140px) rotate(-60deg);}
+  .n3{transform:rotate(120deg) translate(140px) rotate(-120deg);}
+  .n4{transform:rotate(180deg) translate(140px) rotate(-180deg);}
+  .n5{transform:rotate(240deg) translate(140px) rotate(-240deg);}
+  .n6{transform:rotate(300deg) translate(140px) rotate(-300deg);}
+
+  /* ---------- stat strip ---------- */
+  .stat-strip{
+    display:flex; justify-content:center; gap:48px; flex-wrap:wrap;
+    padding:20px 0 36px; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    opacity:0; animation:riseIn 1s ease forwards; animation-delay:.7s;
+  }
+  .stat{text-align:center;}
+  .stat-value{display:block; font-family:'Share Tech Mono',monospace; font-size:1.3rem; color:var(--ice);}
+  .stat-key{display:block; font-size:.65rem; letter-spacing:2.5px; color:var(--silver); margin-top:4px;}
+
+  /* ---------- download button ---------- */
+  .dl-wrap{margin:44px 0 18px; opacity:0; animation:riseIn 1s ease forwards; animation-delay:.85s;}
+  .download-btn{
+    position:relative; display:inline-flex; flex-direction:column; align-items:center; gap:4px;
+    padding:18px 56px; text-decoration:none; border-radius:6px;
+    background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.015));
+    border:1px solid rgba(255,255,255,.55);
+    box-shadow:0 0 22px rgba(255,255,255,.3), inset 0 0 16px rgba(255,255,255,.06);
+    transition:box-shadow .3s ease, transform .3s ease;
+  }
+  .download-btn:hover{box-shadow:0 0 42px rgba(255,255,255,.55), inset 0 0 22px rgba(255,255,255,.1); transform:translateY(-2px);}
+  .btn-text{font-family:'Orbitron',sans-serif; font-weight:700; font-size:1.05rem; letter-spacing:3px; color:#fff;}
+  .btn-sub{font-family:'Share Tech Mono',monospace; font-size:.7rem; color:var(--silver); letter-spacing:1px;}
+  .note{font-size:.8rem; color:var(--silver); letter-spacing:.5px;}
+
+  /* ---------- spec section ---------- */
+  .specs{margin-top:90px;}
+  .specs h2{
+    text-align:center; font-family:'Orbitron',sans-serif; font-size:.85rem; letter-spacing:5px;
+    color:var(--silver); margin-bottom:36px;
+  }
+  .spec-grid{display:grid; grid-template-columns:repeat(2, 1fr); gap:18px;}
+  .spec-card{
+    position:relative; padding:26px 24px; background:var(--panel); border:1px solid var(--line);
+  }
+  .spec-card::before, .spec-card::after{
+    content:''; position:absolute; width:14px; height:14px; border:1px solid rgba(255,255,255,.6);
+  }
+  .spec-card::before{top:-1px; left:-1px; border-right:none; border-bottom:none;}
+  .spec-card::after{bottom:-1px; right:-1px; border-left:none; border-top:none;}
+  .spec-title{font-family:'Orbitron',sans-serif; font-weight:700; font-size:.95rem; letter-spacing:1.5px; color:#fff; margin-bottom:10px;}
+  .spec-desc{font-size:.92rem; line-height:1.55; color:var(--silver); font-weight:500;}
+
+  footer{text-align:center; margin-top:80px;}
+  .footer-text{font-family:'Share Tech Mono',monospace; font-size:.7rem; letter-spacing:2px; color:var(--silver); opacity:.6;}
+
+  @media (max-width:640px){
+    .core-wrap{width:240px; height:240px;}
+    .core{width:76px; height:76px; margin:-38px;}
+    .n1,.n2,.n3,.n4,.n5,.n6{ }
+    .ring{transform:none;}
+    .node{width:38px; height:38px; margin:-19px;}
+    .n1{transform:rotate(0deg) translate(100px) rotate(0deg);}
+    .n2{transform:rotate(60deg) translate(100px) rotate(-60deg);}
+    .n3{transform:rotate(120deg) translate(100px) rotate(-120deg);}
+    .n4{transform:rotate(180deg) translate(100px) rotate(-180deg);}
+    .n5{transform:rotate(240deg) translate(100px) rotate(-240deg);}
+    .n6{transform:rotate(300deg) translate(100px) rotate(-300deg);}
+    .spec-grid{grid-template-columns:1fr;}
+    .stat-strip{gap:28px;}
+    .download-btn{padding:16px 36px; width:80%;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.01ms !important; animation-iteration-count:1 !important;}
+  }
+</style>
+</head>
+<body>
+
+<div id="boot-overlay">
+  <div id="boot-log"></div>
+</div>
+
+<canvas id="particles"></canvas>
+<div class="scanlines"></div>
+<div class="vignette"></div>
+
+<main>
+  <section class="hero">
+    <div class="hud-tag">SYSTEM // SHELL-CLASS WEBVIEW</div>
+    <h1 class="title">G-ALL-IN-1</h1>
+    <p class="tagline">Every Google app you actually use. One impossibly small shell.</p>
+
+    <div class="core-wrap">
+      <div class="core"><span>G</span></div>
+      <div class="ring">
+        <div class="node n1"><div class="icon-spin"><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/></svg></div></div>
+        <div class="node n2"><div class="icon-spin"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.2A7 7 0 0 1 19 9.8C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.3"/></svg></div></div>
+        <div class="node n3"><div class="icon-spin"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M6 9h13"/><path d="M9 13h7M9 16h7"/></svg></div></div>
+        <div class="node n4"><div class="icon-spin"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M10 9l5 3-5 3z"/></svg></div></div>
+        <div class="node n5"><div class="icon-spin"><svg viewBox="0 0 24 24"><path d="M12 3l8 14H4z"/></svg></div></div>
+        <div class="node n6"><div class="icon-spin"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="1"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></div></div>
+      </div>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat"><span class="stat-value">92KB</span><span class="stat-key">PAYLOAD</span></div>
+      <div class="stat"><span class="stat-value">WEBVIEW</span><span class="stat-key">ENGINE</span></div>
+      <div class="stat"><span class="stat-value">~0%</span><span class="stat-key">STORAGE HIT</span></div>
+    </div>
+
+    <div class="dl-wrap">
+      <a class="download-btn" href="https://github.com/saqlainahmed-36/g-all-in-1.apk/raw/refs/heads/main/GAllin-1.apk" download>
+        <span class="btn-text">DOWNLOAD APK</span>
+        <span class="btn-sub">GAllin-1.apk · 92 KB</span>
+      </a>
+      <div class="note" style="margin-top:14px;">Sideload-ready · No Play Store needed · Direct from GitHub</div>
+    </div>
+  </section>
+
+  <section class="specs">
+    <h2>SPEC READOUT</h2>
+    <div class="spec-grid">
+      <div class="spec-card">
+        <div class="spec-title">FULL SUITE</div>
+        <div class="spec-desc">Gmail, Search, Maps, Docs, Slides and more — every core Google service in one light shell, zero app-switching.</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-title">92KB FOOTPRINT</div>
+        <div class="spec-desc">Smaller than most photos on your phone. The whole app weighs less than a single screenshot.</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-title">SINGLE WEBVIEW CORE</div>
+        <div class="spec-desc">No bloated SDKs, no background services. One clean WebView engine doing all the work.</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-title">BUILT FOR LOW STORAGE</div>
+        <div class="spec-desc">Designed for phones running on fumes. If your storage is maxed out, this barely registers.</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-text">G-ALL-IN-1 · UNOFFICIAL SHELL · NOT AFFILIATED WITH GOOGLE LLC</div>
+  </footer>
+</main>
+
+<script>
+  // particle field
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  function resize(){ canvas.width = innerWidth; canvas.height = innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const particles = [];
+  const COUNT = reduceMotion ? 0 : 70;
+  for(let i=0; i<COUNT; i++){
+    particles.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height,
+      r: Math.random()*1.3+0.3,
+      s: Math.random()*0.3+0.05,
+      o: Math.random()*0.5+0.1
+    });
+  }
+  function tick(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = '#ffffff';
+    particles.forEach(p=>{
+      p.y -= p.s;
+      if(p.y < -2){ p.y = canvas.height+2; p.x = Math.random()*canvas.width; }
+      ctx.globalAlpha = p.o;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fill();
+    });
+    requestAnimationFrame(tick);
+  }
+  tick();
+
+  // boot sequence
+  const overlay = document.getElementById('boot-overlay');
+  const bootLog = document.getElementById('boot-log');
+  const bootLines = [
+    'INIT SHELL://G-ALL-IN-1',
+    'MOUNTING MODULES: MAIL · MAPS · DOCS · SLIDES · DRIVE · CAL',
+    'PAYLOAD CHECK: 92KB — OK',
+    'ENGINE: WEBVIEW — READY',
+    'BOOT COMPLETE'
+  ];
+  if(reduceMotion){
+    overlay.style.display = 'none';
+  } else {
+    let i = 0;
+    function nextLine(){
+      if(i < bootLines.length){
+        const div = document.createElement('div');
+        div.textContent = '> ' + bootLines[i];
+        bootLog.appendChild(div);
+        i++;
+        setTimeout(nextLine, 220);
+      } else {
+        setTimeout(()=> overlay.classList.add('boot-hide'), 350);
+      }
+    }
+    nextLine();
+    overlay.addEventListener('click', ()=> overlay.classList.add('boot-hide'));
+  }
+</script>
+
+</body>
+</html>
